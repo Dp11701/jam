@@ -331,6 +331,13 @@ const App: React.FC = () => {
     if (!hasInteracted.current) {
       hasInteracted.current = true;
       audioManager.init();
+
+      // Sử dụng file MP3 từ thư mục assets
+      audioManager.setExternalBGM("./assets/jiglr - Odyssey.mp3");
+
+      // Nếu muốn sử dụng âm thanh được tạo tự động, comment dòng trên và uncomment dòng dưới
+      // audioManager.useGeneratedBGM();
+
       audioManager.startBGM();
     }
   };
@@ -444,7 +451,7 @@ const App: React.FC = () => {
             onUseUnlock={handleUseUnlock}
           />
         </div>
-        <div className="flex flex-col gap-4 w-full max-w-sm md:w-64">
+        <div className="flex flex-col gap-4 w-full md:w-70">
           <HUD
             level={currentLevelIndex + 1}
             moves={gameState.moves}

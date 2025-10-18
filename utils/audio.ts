@@ -4,6 +4,10 @@ class AudioManager {
   private bgmGain: GainNode | null = null;
   private bgmTimer: number | null = null;
   private isBGMStarted: boolean = false;
+  private bgmSource: AudioBufferSourceNode | null = null;
+  private bgmBuffer: AudioBuffer | null = null;
+  private useExternalBGM: boolean = false;
+  private externalBGMPath: string | null = null;
 
   public init() {
     if (!this.audioCtx) {
@@ -16,7 +20,30 @@ class AudioManager {
     }
   }
 
-  public startBGM() {
+  public setExternalBGM(audioPath: string) {
+    this.externalBGMPath = audioPath;
+    this.useExternalBGM = true;
+  }
+
+  public useGeneratedBGM() {
+    this.useExternalBGM = false;
+    this.externalBGMPath = null;
+  }
+
+  private async loadAudioBuffer(url: string): Promise<AudioBuffer> {
+    if (!this.audioCtx) throw new Error("AudioContext not initialized");
+
+    try {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      return await this.audioCtx.decodeAudioData(arrayBuffer);
+    } catch (error) {
+      console.error("Failed to load audio:", error);
+      throw error;
+    }
+  }
+
+  public async startBGM() {
     if (!this.audioCtx || this.isBGMStarted) return;
     this.isBGMStarted = true;
 
@@ -29,6 +56,40 @@ class AudioManager {
       masterVolume,
       this.audioCtx.currentTime + 2.0
     );
+
+    if (this.useExternalBGM && this.externalBGMPath) {
+      await this.startExternalBGM();
+    } else {
+      this.startGeneratedBGM();
+    }
+  }
+
+  private async startExternalBGM() {
+    if (!this.audioCtx || !this.bgmGain || !this.externalBGMPath) return;
+
+    try {
+      // Load the external audio file
+      this.bgmBuffer = await this.loadAudioBuffer(this.externalBGMPath);
+
+      // Create and start the audio source
+      this.bgmSource = this.audioCtx.createBufferSource();
+      this.bgmSource.buffer = this.bgmBuffer;
+      this.bgmSource.loop = true; // Loop the background music
+      this.bgmSource.connect(this.bgmGain);
+      this.bgmSource.start();
+
+      console.log("External BGM started successfully");
+    } catch (error) {
+      console.error(
+        "Failed to start external BGM, falling back to generated music:",
+        error
+      );
+      this.startGeneratedBGM();
+    }
+  }
+
+  private startGeneratedBGM() {
+    if (!this.audioCtx || !this.bgmGain) return;
 
     const audioCtx = this.audioCtx;
 
@@ -199,6 +260,18 @@ class AudioManager {
       this.bgmTimer = window.setTimeout(scheduler, 25.0);
     };
     scheduler();
+  }
+
+  public stopBGM() {
+    if (this.bgmSource) {
+      this.bgmSource.stop();
+      this.bgmSource = null;
+    }
+    if (this.bgmTimer) {
+      clearTimeout(this.bgmTimer);
+      this.bgmTimer = null;
+    }
+    this.isBGMStarted = false;
   }
 
   public toggleMute() {

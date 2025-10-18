@@ -38,15 +38,17 @@ const MoveRuleIcon: React.FC<{ rule: MoveRule }> = ({ rule }) => {
   const iconProps = { className: "w-8 h-8 text-black/70" };
   switch (rule) {
     case "rook":
-      return <RookIcon {...iconProps} />;
+      return <img src="/assets/car.svg" alt="Rook" className="w-8 h-8" />;
     case "bishop":
-      return <BishopIcon {...iconProps} />;
+      return (
+        <img src="/assets/elephant.svg" alt="Bishop" className="w-8 h-8" />
+      );
     case "knight":
-      return <KnightIcon {...iconProps} />;
+      return <img src="/assets/horse.svg" alt="Knight" className="w-8 h-8" />;
     case "king":
-      return <KingIcon {...iconProps} />;
+      return <img src="/assets/king.svg" alt="King" className="w-8 h-8" />;
     case "queen":
-      return <QueenIcon {...iconProps} />;
+      return <img src="/assets/queen.svg" alt="Queen" className="w-8 h-8" />;
     default:
       return null;
   }
