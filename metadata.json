@@ -1,0 +1,5 @@
+{
+  "name": "Untangle Ropes Puzzle",
+  "description": "A fun and challenging puzzle game where you untangle ropes by moving pegs on a grid. The goal is to eliminate all intersections before time runs out. Features include a timer, move counter, and a star-based rating system.",
+  "requestFramePermissions": []
+}
